@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import * as WC from 'woocommerce-api';
+// import * as WC from 'woocommerce-api';
 
 @Component({
   selector: 'app-home',
@@ -18,21 +18,21 @@ export class HomePage {
       autoplay:true
     };
 
-    this.WooCommerce = new WC({
-      url: 'http://localhost/wordpress/wp-json/wc/v3',
-      consumerKey: 'consck_a9dcb267cbcf9faa4b564bc006a52859e5f2efb6umer_key',
-      consumerSecret: 'cs_cfc3fd2a9c000b221fd8a62ee8430dfa3ad581e7',
-      wpAPI: true, 
-      queryStringAuth: true,
-      // verifySsl: true,
-      version: 'wc/v2'
-    });
+    // this.WooCommerce = new WC({
+    //   url: 'http://localhost/wordpress',
+    //   consumerKey: 'ck_a9dcb267cbcf9faa4b564bc006a52859e5f2efb6',
+    //   consumerSecret: 'cs_cfc3fd2a9c000b221fd8a62ee8430dfa3ad581e7',
+    //   wpAPI: true, 
+    //   queryStringAuth: true
+    // });
 
-    this.WooCommerce.getAsync("products").then( (data: any) => {
-      console.log(JSON.parse(data.body));
-    }, (err: any) => {
-      console.log(err);
-    });
+    // console.log('this.WooCommerce : ', this.WooCommerce);
+
+    // this.WooCommerce.getAsync("products").then( (data: any) => {
+    //   console.log(JSON.parse(data.body));
+    // }, (err: any) => {
+    //   console.log(err);
+    // });
    }
 
 }
