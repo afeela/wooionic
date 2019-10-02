@@ -1,8 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-// import { NavController, IonSlides } from '@ionic/angular';
+import { IonSlides, ToastController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 
-import * as WC from 'woocommerce-api';
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 
 @Component({
@@ -12,58 +11,99 @@ import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 })
 export class HomePage {
 
+  api = new WooCommerceRestApi({
+    url: 'http://localhost/wordpress',
+    consumerKey: 'ck_356fdca2733429e1bcf4e8689778b67d22c2911d',
+    consumerSecret: 'cs_7c8381923c832d553555ced975d8fb8d099d1521',
+    version: 'wc/v3'
+  });
+
   slideOpt: any;
   WooCommerce: any;
   products: any[];
-
-  // @ViewChild('productSlides', { static: false }) productSlides: IonSlides;
+  page: number = 2;
+  moreProducts: any[];
+   
+  @ViewChild('productSlides', { static: false }) productSlides: IonSlides;
 
   constructor(
-    private platform: Platform
+    private platform: Platform,
+    public toastCtrl: ToastController
   ) {
     this.slideOpt = {
       loop: true,
       autoplay: true
     };    
-
+    
     this.initializeApp();
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
-      // console.log('WC : ', WC);
-
-      const api = new WooCommerceRestApi({
-      // this.WooCommerce = new WC({
-        url: 'http://localhost/wordpress',
-        consumerKey: 'ck_a9dcb267cbcf9faa4b564bc006a52859e5f2efb6',
-        consumerSecret: 'cs_cfc3fd2a9c000b221fd8a62ee8430dfa3ad581e7',
-        // wpAPI: true, 
-        version: 'wc/v3',
-        // queryStringAuth: true
+    
+      this.api.get("products").then( (data: any) => {
+        this.products = data.data;
+        console.log("page 1 : ", this.products);
+      }, (err: any) => {
+        console.log('initializeApp API Error: ', err);
       });
-      console.log('api : ', api);
-      // console.log('this.WooCommerce : ', this.WooCommerce);
-      // api.get("products").then( (data: any) => {
-      //   console.log(data.body);
-      // }, (err: any) => {
-      //   console.log('Error: ', err);
-      // });
-      
-      // this.WooCommerce.getAsync("products").then( (data: any) => {
-      //   console.log(JSON.parse(data.body));
-      //   this.products = JSON.parse(data.body).products;
-      // }, (err: any) => {
-      //   console.log('Error: ', err);
-      // });
 
-      // setInterval(() => {
-      //   if(this.productSlides.getActiveIndex() == this.productSlides.length() -1)
-      //     this.productSlides.slideTo(0);
+      this.loadMoreProducts(null);
 
-      //     this.productSlides.slideNext();
-      // }, 3000)
+    });
+    
+    setInterval(async () => {
+      if(await this.productSlides.getActiveIndex() == await this.productSlides.length() - 1)
+        this.productSlides.slideTo(0);
 
+        this.productSlides.slideNext();
+    }, 3000);
+
+  }
+
+  loadMoreProducts (event: any) {
+
+    console.log('event : ', event);
+
+    if(event == null) {
+      this.page = 2;
+      this.moreProducts = [];
+    }
+    else { this.page++; }      
+
+    this.api.get("products?page=" + this.page).then( async (data: any) => {
+      console.log("page 2 : ", data.data);
+      this.moreProducts = this.moreProducts.concat(data.data);
+
+      if (event != null) { 
+        console.log('inside event not null');
+        event.complete(); }
+
+      // if(data.data.length < 10){
+      //   event.enable(false);
+
+      //   (await this.toastCtrl.create({
+      //     message: "No more products!",
+      //     duration: 5000
+      //   })).present();
+
+      // }
+
+      console.log('page : ', this.page, 'length : ', data.data.length);
+
+      // if(JSON.parse(data.body).products.length < 10){
+      //   event.enable(false);
+
+      //   this.toastCtrl.create({
+      //     message: "No more products!",
+      //     duration: 5000
+      //   }).present();
+
+      // }
+
+
+    }, (err: any) => {
+      console.log('loadMoreProducts Error: ', err);
     });
   }
 
