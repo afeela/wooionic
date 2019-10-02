@@ -47,7 +47,7 @@ export class HomePage {
       this.api.get("products").then( (data: any) => {
         this.products = data.data;
       }, (err: any) => {
-        console.log('initializeApp API Error: ', err);
+        console.log('Home page: initializeApp err: ', err);
       });
 
       this.loadMoreProducts(null);
@@ -79,7 +79,7 @@ export class HomePage {
         this.presentToast();
       }
     }, (err: any) => {
-      console.log('loadMoreProducts Error: ', err);
+      console.log('Home page: loadMoreProducts err: ', err);
     });
   }  
 

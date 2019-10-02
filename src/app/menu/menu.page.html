@@ -5,5 +5,10 @@
 </ion-header>
 
 <ion-content>
-
+  <ion-list *ngFor="let category of categories" class="text-wrap">
+    <h2> {{ category.name }} </h2>
+    <p> {{ category.description }} </p>
+  </ion-list>
 </ion-content>
+
+<!-- <ion-nav #content [root]="homePage"></ion-nav> -->
