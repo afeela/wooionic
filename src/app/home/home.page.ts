@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonSlides, ToastController } from '@ionic/angular';
+import { IonSlides, ToastController , IonInfiniteScroll } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
@@ -25,17 +25,20 @@ export class HomePage {
   moreProducts: any[];
    
   @ViewChild('productSlides', { static: false }) productSlides: IonSlides;
+  @ViewChild('refresherRef', { static: false }) refresherRef;
+
+  dataList:any;
 
   constructor(
     private platform: Platform,
-    public toastCtrl: ToastController
+    public toastController: ToastController
   ) {
     this.slideOpt = {
       loop: true,
       autoplay: true
     };    
     
-    this.initializeApp();
+    this.initializeApp();    
   }
 
   initializeApp() {
@@ -43,7 +46,6 @@ export class HomePage {
     
       this.api.get("products").then( (data: any) => {
         this.products = data.data;
-        console.log("page 1 : ", this.products);
       }, (err: any) => {
         console.log('initializeApp API Error: ', err);
       });
@@ -58,12 +60,9 @@ export class HomePage {
 
         this.productSlides.slideNext();
     }, 3000);
-
   }
 
   loadMoreProducts (event: any) {
-
-    console.log('event : ', event);
 
     if(event == null) {
       this.page = 2;
@@ -72,39 +71,24 @@ export class HomePage {
     else { this.page++; }      
 
     this.api.get("products?page=" + this.page).then( async (data: any) => {
-      console.log("page 2 : ", data.data);
+
       this.moreProducts = this.moreProducts.concat(data.data);
 
       if (event != null) { 
-        console.log('inside event not null');
-        event.complete(); }
-
-      // if(data.data.length < 10){
-      //   event.enable(false);
-
-      //   (await this.toastCtrl.create({
-      //     message: "No more products!",
-      //     duration: 5000
-      //   })).present();
-
-      // }
-
-      console.log('page : ', this.page, 'length : ', data.data.length);
-
-      // if(JSON.parse(data.body).products.length < 10){
-      //   event.enable(false);
-
-      //   this.toastCtrl.create({
-      //     message: "No more products!",
-      //     duration: 5000
-      //   }).present();
-
-      // }
-
-
+        this.refresherRef.complete(); 
+        this.presentToast();
+      }
     }, (err: any) => {
       console.log('loadMoreProducts Error: ', err);
     });
+  }  
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'No more products!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }
